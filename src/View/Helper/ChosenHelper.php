@@ -18,9 +18,17 @@
  * @package chosen
  * @subpackage chosen.views.helpers
  */
-class ChosenHelper extends AppHelper
+
+namespace Chosen\View\Helper;
+
+use Cake\View\Helper;
+use Cake\View\View;
+use Cake\Core\Configure;
+use Cake\Event\Event;
+
+class ChosenHelper extends Helper
 {
-    public $helpers = array('Html', 'Form');
+    public $helpers = ['Html', 'Form'];
 
     /**
      * Default configuration options.
@@ -28,11 +36,11 @@ class ChosenHelper extends AppHelper
      * Settings configured Configure class, ie. `Configure::write('Chosen.asset_base', '/path');`
      * take precedence over settings configured through Controller::$helpers property.
      */
-    public $settings = array(
+    public $_defaultConfig = [
         'framework' => 'jquery',
         'class' => 'chosen-select',
-        'asset_base' => '/chosen/chosen',
-    );
+        'asset_base' => '/chosen',
+    ];
 
     /**
      * If a chosen select element was called, load up the scripts.
@@ -55,16 +63,17 @@ class ChosenHelper extends AppHelper
      */
     private $debug = false;
 
-    public function __construct(View $view, $settings = array())
+    public function __construct(View $view, $config = [])
     {
-        parent::__construct($view, $settings);
+        parent::__construct($view, $config);
 
         // @todo - this is merged by Helper::__construct() in 2.3.
-        $this->settings = array_merge($this->settings, (array) $settings, (array) Configure::read('Chosen'));
+        $this->settings = $this->config();
+        
         $this->debug = Configure::read('debug') ? true : false;
 
         if (!$this->isSupportedFramework($fw = $this->getSetting('framework'))) {
-            throw new LogicException(sprintf('Configured JavaScript framework "%s" is not supported. Only "jquery" or "prototype" are valid options.', $fw));
+            throw new NotConfiguredException(['framework' => $fw]);
         }
     }
 
@@ -95,7 +104,7 @@ class ChosenHelper extends AppHelper
     /**
      * Chosen select element.
      */
-    public function select($name, $options = array(), $attributes = array())
+    public function select($name, $options = [], $attributes = [])
     {
         if (false === $this->load) {
             $this->load = true;
@@ -124,7 +133,7 @@ class ChosenHelper extends AppHelper
         return $this->Form->select($name, $options, $attributes);
     }
 
-    public function afterRender($viewFile)
+    public function afterRender(Event $event, $viewFile)
     {
         if (false === $this->load) {
             return;
@@ -140,6 +149,7 @@ class ChosenHelper extends AppHelper
         }
 
         $this->loaded = true;
+        
         $base = $this->getsetting('asset_base');
 
         switch ($this->getSetting('framework')) {
@@ -157,8 +167,8 @@ class ChosenHelper extends AppHelper
 
         // 3rd party assets.
         $script = sprintf($script, $this->debug === true ? 'js' : 'min.js');
-        $this->Html->css($base . '/chosen.css', null, array('inline' => false));
-        $this->Html->script($base . '/' . $script, array('inline' => false));
+        $this->Html->script('Chosen.'.$script, ['inline' => false, 'block' => true]);
+        $this->Html->css('Chosen.chosen.css', ['inline' => false, 'block' => true]);
 
         // Add the script.
         $this->_View->append('script', $this->getElement($elm));
@@ -174,7 +184,7 @@ class ChosenHelper extends AppHelper
     {
         $class = $this->getSetting('class');
 
-        return $this->_View->element('Chosen.' . $element, array('class' => $class));
+        return $this->_View->Element('Chosen.' . $element, ['class' => $class]);
     }
 
     /**
@@ -186,6 +196,6 @@ class ChosenHelper extends AppHelper
      */
     public function isSupportedFramework($val)
     {
-        return in_array($val, array('jquery', 'prototype'));
+        return in_array($val, ['jquery', 'prototype']);
     }
 }

@@ -1,36 +1,23 @@
 {
-    "name": "paulredmond/chosen-cakephp",
-    "description": "Chosen CakePHP plugin for CakePHP 2",
-    "keywords": ["plugin", "cakephp"],
-    "homepage": "https://github.com/paulredmond/chosen-cakephp",
-    "version": "2.2.0",
-    "license": "MIT",
+    "name": "your-name-here/Chosen",
+    "description": "Chosen plugin for CakePHP",
     "type": "cakephp-plugin",
-    "authors": [
-        {
-            "name": "Paul Redmond",
-            "email": "paulrredmond@gmail.com"
-        },
-        {
-            "name": "Harvest HQ",
-            "homepage": "http://harvesthq.github.com/chosen"
-        },
-        {
-            "name": "Github Contributors",
-            "homepage": "https://github.com/paulredmond/chosen-cakephp/graphs/contributors"
-        }
-    ],
     "require": {
-        "php": ">=5.2.6",
-        "composer/installers": "1.*"
+        "php": ">=5.4.16",
+        "cakephp/cakephp": "~3.0"
     },
-    "config": {
-        "vendor-dir": "Vendor"
+    "require-dev": {
+        "phpunit/phpunit": "*"
     },
-    "extra": {
-        "installer-name": "Chosen",
-        "branch-alias": {
-            "dev-master": "2.2.x-dev"
+    "autoload": {
+        "psr-4": {
+            "Chosen\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Chosen\\Test\\": "tests",
+            "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
         }
     }
 }
